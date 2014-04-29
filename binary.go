@@ -28,18 +28,17 @@ func Unmarshal(b []byte, v interface{}) error {
 }
 
 type Encoder struct {
-	w io.Writer
+	w   io.Writer
+	buf []byte
 }
 
 func NewEncoder(w io.Writer) *Encoder {
-	return &Encoder{w}
+	return &Encoder{w, make([]byte, 8)}
 }
 
 func (e *Encoder) writeVarint(v int) error {
-	b := make([]byte, 8)
-	l := binary.PutUvarint(b, uint64(v))
-	b = b[:l]
-	_, err := e.w.Write(b)
+	l := binary.PutUvarint(e.buf, uint64(v))
+	_, err := e.w.Write(e.buf[:l])
 	return err
 }
 
