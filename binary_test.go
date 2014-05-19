@@ -105,3 +105,11 @@ func TestBinaryMarshalUnMarshaler(t *testing.T) {
 	assert.NoError(t, err)
 	assert.Equal(t, []byte{0x1, 0x13}, b)
 }
+
+func TestMarshalUnMarshalTypeAliases(t *testing.T) {
+	type Foo int64
+	f := Foo(32)
+	b, err := Marshal(f)
+	assert.NoError(t, err)
+	assert.Equal(t, []byte{0x20, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0}, b)
+}
