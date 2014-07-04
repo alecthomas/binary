@@ -131,7 +131,7 @@ func (b *Encoder) Encode(v interface{}) (err error) {
 			err = binary.Write(b.w, b.Order, v)
 
 		default:
-			return errors.New("unsupported type " + t.String())
+			return errors.New("binary: unsupported type " + t.String())
 		}
 	}
 	return
@@ -164,7 +164,7 @@ func (d *Decoder) Decode(v interface{}) (err error) {
 	// Otherwise, use reflection.
 	rv := reflect.Indirect(reflect.ValueOf(v))
 	if !rv.CanAddr() {
-		return errors.New("can only Decode to pointer type")
+		return errors.New("binary: can only Decode to pointer type")
 	}
 	t := rv.Type()
 
@@ -177,7 +177,7 @@ func (d *Decoder) Decode(v interface{}) (err error) {
 		if t.Kind() == reflect.Slice {
 			rv.Set(reflect.MakeSlice(t, int(l), int(l)))
 		} else if int(l) != t.Len() {
-			return fmt.Errorf("encoded size %d != real size %d", l, t.Len())
+			return fmt.Errorf("binary: encoded size %d != real size %d", l, t.Len())
 		}
 		for i := 0; i < int(l); i++ {
 			if err = d.Decode(rv.Index(i).Addr().Interface()); err != nil {
@@ -245,7 +245,7 @@ func (d *Decoder) Decode(v interface{}) (err error) {
 		err = binary.Read(d.r, d.Order, v)
 
 	default:
-		return errors.New("unsupported type " + t.String())
+		return errors.New("binary: unsupported type " + t.String())
 	}
 	return
 }
