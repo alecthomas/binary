@@ -28,12 +28,17 @@ func Unmarshal(b []byte, v interface{}) error {
 }
 
 type Encoder struct {
-	w   io.Writer
-	buf []byte
+	Order binary.ByteOrder
+	w     io.Writer
+	buf   []byte
 }
 
 func NewEncoder(w io.Writer) *Encoder {
-	return &Encoder{w, make([]byte, 8)}
+	return &Encoder{
+		Order: DefaultEndian,
+		w:     w,
+		buf:   make([]byte, 8),
+	}
 }
 
 func (e *Encoder) writeVarint(v int) error {
@@ -111,19 +116,19 @@ func (b *Encoder) Encode(v interface{}) (err error) {
 			if rv.Bool() {
 				out = 1
 			}
-			err = binary.Write(b.w, DefaultEndian, out)
+			err = binary.Write(b.w, b.Order, out)
 
 		case reflect.Int:
-			err = binary.Write(b.w, DefaultEndian, int64(rv.Int()))
+			err = binary.Write(b.w, b.Order, int64(rv.Int()))
 
 		case reflect.Uint:
-			err = binary.Write(b.w, DefaultEndian, int64(rv.Uint()))
+			err = binary.Write(b.w, b.Order, int64(rv.Uint()))
 
 		case reflect.Int8, reflect.Uint8, reflect.Int16, reflect.Uint16,
 			reflect.Int32, reflect.Uint32, reflect.Int64, reflect.Uint64,
 			reflect.Float32, reflect.Float64,
 			reflect.Complex64, reflect.Complex128:
-			err = binary.Write(b.w, DefaultEndian, v)
+			err = binary.Write(b.w, b.Order, v)
 
 		default:
 			return errors.New("unsupported type " + t.String())
