@@ -138,11 +138,15 @@ func (b *Encoder) Encode(v interface{}) (err error) {
 }
 
 type Decoder struct {
-	r *bufio.Reader
+	Order binary.ByteOrder
+	r     *bufio.Reader
 }
 
 func NewDecoder(r io.Reader) *Decoder {
-	return &Decoder{bufio.NewReader(r)}
+	return &Decoder{
+		Order: DefaultEndian,
+		r:     bufio.NewReader(r),
+	}
 }
 
 func (d *Decoder) Decode(v interface{}) (err error) {
@@ -222,23 +226,23 @@ func (d *Decoder) Decode(v interface{}) (err error) {
 
 	case reflect.Bool:
 		var out byte
-		err = binary.Read(d.r, DefaultEndian, &out)
+		err = binary.Read(d.r, d.Order, &out)
 		rv.SetBool(out != 0)
 
 	case reflect.Int:
 		var out int64
-		err = binary.Read(d.r, DefaultEndian, &out)
+		err = binary.Read(d.r, d.Order, &out)
 		rv.SetInt(out)
 
 	case reflect.Uint:
 		var out uint64
-		err = binary.Read(d.r, DefaultEndian, &out)
+		err = binary.Read(d.r, d.Order, &out)
 		rv.SetUint(out)
 
 	case reflect.Int8, reflect.Uint8, reflect.Int16, reflect.Uint16,
 		reflect.Int32, reflect.Uint32, reflect.Int64, reflect.Uint64,
 		reflect.Float32, reflect.Float64, reflect.Complex64, reflect.Complex128:
-		err = binary.Read(d.r, DefaultEndian, v)
+		err = binary.Read(d.r, d.Order, v)
 
 	default:
 		return errors.New("unsupported type " + t.String())
