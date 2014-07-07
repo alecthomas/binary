@@ -1,7 +1,6 @@
 package binary
 
 import (
-	"bufio"
 	"bytes"
 	"encoding"
 	"encoding/binary"
@@ -137,15 +136,27 @@ func (b *Encoder) Encode(v interface{}) (err error) {
 	return
 }
 
+type byteReader struct {
+	io.Reader
+}
+
+func (b *byteReader) ReadByte() (byte, error) {
+	var buf [1]byte
+	if _, err := io.ReadFull(b, buf[:]); err != nil {
+		return 0, err
+	}
+	return buf[0], nil
+}
+
 type Decoder struct {
 	Order binary.ByteOrder
-	r     *bufio.Reader
+	r     *byteReader
 }
 
 func NewDecoder(r io.Reader) *Decoder {
 	return &Decoder{
 		Order: DefaultEndian,
-		r:     bufio.NewReader(r),
+		r:     &byteReader{r},
 	}
 }
 
