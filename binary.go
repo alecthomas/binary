@@ -11,7 +11,9 @@ import (
 )
 
 var (
-	DefaultEndian = binary.LittleEndian
+	LittleEndian  = binary.LittleEndian
+	BigEndian     = binary.BigEndian
+	DefaultEndian = LittleEndian
 )
 
 func Marshal(v interface{}) ([]byte, error) {
