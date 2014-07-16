@@ -70,7 +70,15 @@ func (b *Encoder) Encode(v interface{}) (err error) {
 		rv := reflect.Indirect(reflect.ValueOf(v))
 		t := rv.Type()
 		switch t.Kind() {
-		case reflect.Array, reflect.Slice:
+		case reflect.Array:
+			l := t.Len()
+			for i := 0; i < l; i++ {
+				if err = b.Encode(rv.Index(i).Interface()); err != nil {
+					return
+				}
+			}
+
+		case reflect.Slice:
 			l := rv.Len()
 			if err = b.writeVarint(l); err != nil {
 				return
@@ -182,7 +190,15 @@ func (d *Decoder) Decode(v interface{}) (err error) {
 	t := rv.Type()
 
 	switch t.Kind() {
-	case reflect.Array, reflect.Slice:
+	case reflect.Array:
+		len := t.Len()
+		for i := 0; i < int(len); i++ {
+			if err = d.Decode(rv.Index(i).Addr().Interface()); err != nil {
+				return
+			}
+		}
+
+	case reflect.Slice:
 		var l uint64
 		if l, err = binary.ReadUvarint(d.r); err != nil {
 			return
