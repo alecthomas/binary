@@ -390,3 +390,40 @@ func BenchmarkDecodeStructI3(b *testing.B) {
 	}
 
 }
+
+func TestMapOfStructWithStruct(t *testing.T) {
+	type T1 struct {
+		ID   uint64
+		Name string
+	}
+	type T2 uint64
+	type Struct struct {
+		V1 T1
+		V2 T2
+		V3 T1
+	}
+
+	k1 := Struct{V1: T1{1, "1"}, V2: 2, V3: T1{3, "3"}}
+	v1 := Struct{V1: T1{1, "1"}, V2: 2, V3: T1{3, "3"}}
+	s := map[Struct]Struct{
+		k1: v1,
+	}
+	buf := new(bytes.Buffer)
+	enc := NewEncoder(buf)
+	err := enc.Encode(&s)
+	if err != nil {
+		t.Fatalf("error: %v\n", err)
+	}
+
+	v := make(map[Struct]Struct)
+	dec := NewDecoder(buf)
+	err = dec.Decode(&v)
+	if err != nil {
+		t.Fatalf("error: %v\n", err)
+	}
+
+	if !reflect.DeepEqual(s, v) {
+		t.Fatalf("got= %#v\nwant=%#v\n", v, s)
+	}
+
+}
