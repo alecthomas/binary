@@ -219,3 +219,39 @@ func TestArrayOfStructWithStruct(t *testing.T) {
 	}
 
 }
+
+func TestSliceOfStructWithStruct(t *testing.T) {
+	type T1 struct {
+		ID    uint64
+		Name  string
+		Slice []int
+	}
+	type T2 uint64
+	type Struct struct {
+		V1 T1
+		V2 T2
+		V3 T1
+	}
+
+	s := []Struct{
+		{V1: T1{1, "1", []int{1}}, V2: 2, V3: T1{3, "3", []int{3}}},
+	}
+	buf := new(bytes.Buffer)
+	enc := NewEncoder(buf)
+	err := enc.Encode(&s)
+	if err != nil {
+		t.Fatalf("error: %v\n", err)
+	}
+
+	v := []Struct{}
+	dec := NewDecoder(buf)
+	err = dec.Decode(&v)
+	if err != nil {
+		t.Fatalf("error: %v\n", err)
+	}
+
+	if !reflect.DeepEqual(s, v) {
+		t.Fatalf("got= %#v\nwant=%#v\n", v, s)
+	}
+
+}
