@@ -73,7 +73,7 @@ func (b *Encoder) Encode(v interface{}) (err error) {
 		case reflect.Array:
 			l := t.Len()
 			for i := 0; i < l; i++ {
-				if err = b.Encode(rv.Index(i).Interface()); err != nil {
+				if err = b.Encode(rv.Index(i).Addr().Interface()); err != nil {
 					return
 				}
 			}
