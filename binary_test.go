@@ -3,6 +3,8 @@ package binary
 import (
 	"bytes"
 	"errors"
+	"fmt"
+	"io"
 	"reflect"
 	"testing"
 	"time"
@@ -297,6 +299,80 @@ func BenchmarkEncodeStructI3(b *testing.B) {
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
 		err := enc.Encode(&s)
+		if err != nil {
+			b.Fatalf("error: %v\n", err)
+		}
+	}
+
+}
+
+type bufferT struct {
+	buf []byte
+}
+
+func (buf *bufferT) Read(data []byte) (int, error) {
+	n := copy(data, buf.buf)
+	if n != len(data) {
+		panic(fmt.Errorf("read too few bytes. got=%d want=%d", n, len(data)))
+	}
+	return n, nil
+}
+
+func getTestBuffer(b *testing.B) io.Reader {
+	return &bufferT{
+		buf: []byte{0, 4, 0, 0, 0, 0, 0, 0},
+	}
+}
+
+func BenchmarkDecodeStructI1(b *testing.B) {
+
+	type Struct struct {
+		I int64
+	}
+
+	var s Struct
+
+	buf := getTestBuffer(b)
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		dec := NewDecoder(buf)
+		_ = dec.Decode(&s)
+	}
+
+}
+
+func BenchmarkDecodeStructI2(b *testing.B) {
+
+	type Struct struct {
+		I int64
+	}
+
+	var s Struct
+
+	buf := getTestBuffer(b)
+	dec := NewDecoder(buf)
+
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		_ = dec.Decode(&s)
+	}
+
+}
+
+func BenchmarkDecodeStructI3(b *testing.B) {
+
+	type Struct struct {
+		I int64
+	}
+
+	var s Struct
+
+	buf := getTestBuffer(b)
+	dec := NewDecoder(buf)
+
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		err := dec.Decode(&s)
 		if err != nil {
 			b.Fatalf("error: %v\n", err)
 		}
