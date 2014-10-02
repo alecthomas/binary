@@ -255,3 +255,51 @@ func TestSliceOfStructWithStruct(t *testing.T) {
 	}
 
 }
+
+func BenchmarkEncodeStructI1(b *testing.B) {
+	type Struct struct {
+		I int64
+	}
+	s := Struct{I: 1024}
+	buf := new(bytes.Buffer)
+
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		enc := NewEncoder(buf)
+		_ = enc.Encode(&s)
+	}
+
+}
+
+func BenchmarkEncodeStructI2(b *testing.B) {
+	type Struct struct {
+		I int64
+	}
+	s := Struct{I: 1024}
+	buf := new(bytes.Buffer)
+	enc := NewEncoder(buf)
+
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		_ = enc.Encode(&s)
+	}
+
+}
+
+func BenchmarkEncodeStructI3(b *testing.B) {
+	type Struct struct {
+		I int64
+	}
+	s := Struct{I: 1024}
+	buf := new(bytes.Buffer)
+	enc := NewEncoder(buf)
+
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		err := enc.Encode(&s)
+		if err != nil {
+			b.Fatalf("error: %v\n", err)
+		}
+	}
+
+}
