@@ -73,7 +73,7 @@ func (b *Encoder) Encode(v interface{}) (err error) {
 		case reflect.Array:
 			l := t.Len()
 			for i := 0; i < l; i++ {
-				if err = b.Encode(rv.Index(i).Interface()); err != nil {
+				if err = b.Encode(rv.Index(i).Addr().Interface()); err != nil {
 					return
 				}
 			}
@@ -84,7 +84,7 @@ func (b *Encoder) Encode(v interface{}) (err error) {
 				return
 			}
 			for i := 0; i < l; i++ {
-				if err = b.Encode(rv.Index(i).Interface()); err != nil {
+				if err = b.Encode(rv.Index(i).Addr().Interface()); err != nil {
 					return
 				}
 			}
@@ -93,7 +93,9 @@ func (b *Encoder) Encode(v interface{}) (err error) {
 			l := rv.NumField()
 			for i := 0; i < l; i++ {
 				if v := rv.Field(i); v.CanSet() && t.Field(i).Name != "_" {
-					if err = b.Encode(v.Interface()); err != nil {
+					// take the address of the field, so structs containing structs
+					// are correctly encoded.
+					if err = b.Encode(v.Addr().Interface()); err != nil {
 						return
 					}
 				}
