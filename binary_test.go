@@ -260,9 +260,12 @@ func TestSliceOfStructWithStruct(t *testing.T) {
 
 func BenchmarkEncodeStructI1(b *testing.B) {
 	type Struct struct {
-		I int64
+		S struct {
+			I int64
+		}
 	}
-	s := Struct{I: 1024}
+	var s Struct
+	s.S.I = 1024
 	buf := new(bytes.Buffer)
 
 	b.ResetTimer()
@@ -275,9 +278,12 @@ func BenchmarkEncodeStructI1(b *testing.B) {
 
 func BenchmarkEncodeStructI2(b *testing.B) {
 	type Struct struct {
-		I int64
+		S struct {
+			I int64
+		}
 	}
-	s := Struct{I: 1024}
+	var s Struct
+	s.S.I = 1024
 	buf := new(bytes.Buffer)
 	enc := NewEncoder(buf)
 
@@ -290,9 +296,12 @@ func BenchmarkEncodeStructI2(b *testing.B) {
 
 func BenchmarkEncodeStructI3(b *testing.B) {
 	type Struct struct {
-		I int64
+		S struct {
+			I int64
+		}
 	}
-	s := Struct{I: 1024}
+	var s Struct
+	s.S.I = 1024
 	buf := new(bytes.Buffer)
 	enc := NewEncoder(buf)
 
@@ -344,9 +353,10 @@ func BenchmarkDecodeStructI1(b *testing.B) {
 func BenchmarkDecodeStructI2(b *testing.B) {
 
 	type Struct struct {
-		I int64
+		S struct {
+			I int64
+		}
 	}
-
 	var s Struct
 
 	buf := getTestBuffer(b)
@@ -362,9 +372,10 @@ func BenchmarkDecodeStructI2(b *testing.B) {
 func BenchmarkDecodeStructI3(b *testing.B) {
 
 	type Struct struct {
-		I int64
+		S struct {
+			I int64
+		}
 	}
-
 	var s Struct
 
 	buf := getTestBuffer(b)
