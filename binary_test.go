@@ -258,6 +258,24 @@ func TestSliceOfStructWithStruct(t *testing.T) {
 
 }
 
+func TestMarshalNonPointer(t *testing.T) {
+	type S struct {
+		A int
+	}
+	s := S{A: 1}
+	data, err := Marshal(s)
+	if err != nil {
+		t.Fatal(err)
+	}
+	var res S
+	if err := Unmarshal(data, &res); err != nil {
+		t.Fatal(err)
+	}
+	if !reflect.DeepEqual(res, s) {
+		t.Fatalf("expect %v got %v", s, res)
+	}
+}
+
 func BenchmarkEncodeStructI1(b *testing.B) {
 	type Struct struct {
 		S struct {
