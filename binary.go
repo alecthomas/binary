@@ -104,10 +104,8 @@ func (b *Encoder) Encode(v interface{}) (err error) {
 			l := rv.NumField()
 			n := 0
 			for i := 0; i < l; i++ {
-				if v := rv.Field(i); v.CanSet() && t.Field(i).Name != "_" {
-					// take the address of the field, so structs containing structs
-					// are correctly encoded.
-					if err = b.Encode(v.Addr().Interface()); err != nil {
+				if v := rv.Field(i); t.Field(i).Name != "_" {
+					if err = b.Encode(v.Interface()); err != nil {
 						return
 					}
 					n++
