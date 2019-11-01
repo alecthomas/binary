@@ -122,6 +122,20 @@ func (b *Encoder) Encode(v interface{}) (err error) {
 			}
 			for _, key := range rv.MapKeys() {
 				value := rv.MapIndex(key)
+				if key.CanAddr() {
+					key = key.Addr()
+				} else {
+					k := reflect.New(key.Type()).Elem()
+					k.Set(key)
+					key = k.Addr()
+				}
+				if value.CanAddr() {
+					value = value.Addr()
+				} else {
+					v := reflect.New(value.Type()).Elem()
+					v.Set(value)
+					value = v.Addr()
+				}
 				if err = b.Encode(key.Interface()); err != nil {
 					return err
 				}
