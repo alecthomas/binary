@@ -276,6 +276,36 @@ func TestMarshalNonPointer(t *testing.T) {
 	}
 }
 
+func TestStructWithPrivateFields(t *testing.T) {
+
+	type S struct {
+		Public        int
+		AnotherPublic int
+		private       int
+	}
+
+	s := S{
+		Public:        123,
+		AnotherPublic: 456,
+		private:       -555,
+	}
+
+	assert.NotPanics(t, func() {
+
+		data, err := Marshal(s)
+		assert.NoError(t, err)
+
+		var res S
+		if err := Unmarshal(data, &res); err != nil {
+			t.Fatal(err)
+		}
+		assert.Equal(t, s.Public, res.Public)
+		assert.Equal(t, s.AnotherPublic, res.AnotherPublic)
+
+	})
+
+}
+
 func BenchmarkEncodeStructI1(b *testing.B) {
 	type Struct struct {
 		S struct {

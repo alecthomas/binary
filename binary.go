@@ -104,7 +104,7 @@ func (b *Encoder) Encode(v interface{}) (err error) {
 			l := rv.NumField()
 			n := 0
 			for i := 0; i < l; i++ {
-				if v := rv.Field(i); t.Field(i).Name != "_" {
+				if v := rv.Field(i); t.Field(i).Name != "_" && t.Field(i).IsExported() {
 					if err = b.Encode(v.Interface()); err != nil {
 						return
 					}
